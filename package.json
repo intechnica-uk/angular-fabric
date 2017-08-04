@@ -1,24 +1,24 @@
 {
-  "name": "angular-fabric-custom",
-  "version": "0.3.9",
-  "private": true,
-  "description": "FabricJS Angular Integration",
-  "main": "gulpfile.js",
-  "directories": {
-    "example": "example"
-  },
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/safderiqbal/angular-fabric/issues"
-  },
-  "devDependencies": {
-    "gulp": "^3.9.1",
-    "gulp-bump": "^2.5.0",
-    "gulp-concat": "~2.6.0",
-    "gulp-uglify": "~1.2.0",
-    "uglify": "~0.1.5"
-  },
-  "dependencies": {
-    "dts-gen": "^0.4.16"
-  }
+    "name": "angular-fabric-custom",
+    "version": "0.3.10",
+    "private": true,
+    "description": "FabricJS Angular Integration",
+    "main": "gulpfile.js",
+    "directories": {
+        "example": "example"
+    },
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/safderiqbal/angular-fabric/issues"
+    },
+    "devDependencies": {
+        "gulp": "^3.9.1",
+        "gulp-bump": "^2.5.0",
+        "gulp-concat": "~2.6.0",
+        "gulp-uglify": "~1.2.0",
+        "uglify": "~0.1.5"
+    },
+    "dependencies": {
+        "dts-gen": "^0.4.16"
+    }
 }

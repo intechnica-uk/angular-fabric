@@ -1,25 +1,25 @@
 {
-  "name": "angular-fabric",
-  "main": "dist/angular-fabric.js",
-  "private": true,
-  "version": "0.3.9",
-  "description": "AngularJS directive FabricJS",
-  "license": "MIT",
-  "ignore": [
-    "lib",
-    "src",
-    "test",
-    "example",
-    "build_all",
-    "build.js",
-    "build.sh",
-    "gulpfile.js",
-    "test.js",
-    "HEADER.js",
-    ".gitignore"
-  ],
-  "dependencies": {
-    "angular": ">1.4.0",
-    "fabric": "~1.6.x"
-  }
+    "name": "angular-fabric",
+    "main": "dist/angular-fabric.js",
+    "private": true,
+    "version": "0.3.10",
+    "description": "AngularJS directive FabricJS",
+    "license": "MIT",
+    "ignore": [
+        "lib",
+        "src",
+        "test",
+        "example",
+        "build_all",
+        "build.js",
+        "build.sh",
+        "gulpfile.js",
+        "test.js",
+        "HEADER.js",
+        ".gitignore"
+    ],
+    "dependencies": {
+        "angular": ">1.4.0",
+        "fabric": "~1.6.x"
+    }
 }

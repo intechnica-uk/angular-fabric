@@ -1,37 +1,37 @@
 angular.module('common.fabric.dirtyStatus', [])
 
 .service('FabricDirtyStatus', ['$window', function($window) {
-	'use strict';
+    'use strict';
 
-	var self = {
-		dirty: false
-	};
+    var self = {
+        dirty: false
+    };
 
-	function checkSaveStatus() {
-		if (self.isDirty()) {
-			return 'Oops! You have unsaved changes.\n\n' +
-				'Please save before leaving so you don\'t lose any work.';
-		}
-	}
+    function checkSaveStatus() {
+        if (self.isDirty()) {
+            return 'Oops! You have unsaved changes.\n\n' +
+                'Please save before leaving so you don\'t lose any work.';
+        }
+    }
 
-	self.endListening = function() {
-		$window.onbeforeunload = null;
-		$window.onhashchange = null;
-	};
+    self.endListening = function() {
+        $window.onbeforeunload = null;
+        $window.onhashchange = null;
+    };
 
-	self.startListening = function() {
-		$window.onbeforeunload = checkSaveStatus;
-		$window.onhashchange = checkSaveStatus;
-	};
+    self.startListening = function() {
+        $window.onbeforeunload = checkSaveStatus;
+        $window.onhashchange = checkSaveStatus;
+    };
 
-	self.isDirty = function() {
-		return self.dirty;
-	};
+    self.isDirty = function() {
+        return self.dirty;
+    };
 
-	self.setDirty = function(value) {
-		self.dirty = value;
-	};
+    self.setDirty = function(value) {
+        self.dirty = value;
+    };
 
-	return self;
+    return self;
 
 }]);

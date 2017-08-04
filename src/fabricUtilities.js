@@ -9,14 +9,14 @@ angular
             },
             link: function(scope, element) {
                 element.mousedown(function() {
-                    $timeout(function() {
-                        scope.parentClick();
+                        $timeout(function() {
+                            scope.parentClick();
+                        });
+                    })
+                    .children()
+                    .mousedown(function(e) {
+                        e.stopPropagation();
                     });
-                })
-                .children()
-                .mousedown(function(e) {
-                    e.stopPropagation();
-                });
             }
         };
     }])
@@ -25,14 +25,14 @@ angular
 
         var self = {};
 
-        self.onKeyDown = function (listenerArea, callback) {
-            listenerArea.addEventListener('keydown', function (event) {
+        self.onKeyDown = function(listenerArea, callback) {
+            listenerArea.addEventListener('keydown', function(event) {
                 callback(event);
             }, false);
         };
 
-        self.onKeyCode = function (listenerArea, keyCode, callback) {
-            self.onKeyDown(listenerArea, function (event) {
+        self.onKeyCode = function(listenerArea, keyCode, callback) {
+            self.onKeyDown(listenerArea, function(event) {
                 if (event.which === keyCode) {
                     event.preventDefault();
                     callback(event);
@@ -41,8 +41,8 @@ angular
         };
 
         self.onCtrlAndS = function(callback) {
-            self.onKeyDown(document, function (event) {
-                if((event.ctrlKey || event.metaKey) && event.which === 83) {
+            self.onKeyDown(document, function(event) {
+                if ((event.ctrlKey || event.metaKey) && event.which === 83) {
                     event.preventDefault();
                     callback(event);
                 }
@@ -51,20 +51,20 @@ angular
 
         return self;
     }])
-    .filter('Reverse', [function () {
+    .filter('Reverse', [function() {
         'use strict';
-        
+
         return function(items) {
             if (items) {
                 return items.slice().reverse();
             }
         };
     }])
-    .filter('ArrayContainsProperty', [function () {
+    .filter('ArrayContainsProperty', [function() {
         'use strict';
 
-        return function (objectArray, targetValue, property) {
-            return objectArray.some(function (object) {
+        return function(objectArray, targetValue, property) {
+            return objectArray.some(function(object) {
                 if (!!object && !!object[property]) {
                     return object[property] === targetValue;
                 }

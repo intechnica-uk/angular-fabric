@@ -66,7 +66,7 @@ angular.module('common.fabric', [
                 object = object || canvas.getActiveObject();
 
                 if (object.setSelectionStyles && object.isEditing) {
-                    var style = { };
+                    var style = {};
                     style[styleName] = value;
                     object.setSelectionStyles(style);
                 } else {
@@ -97,20 +97,22 @@ angular.module('common.fabric', [
                 var byteCharacters = atob(b64Data);
                 var byteArrays = [];
 
-                for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
-                    var slice = byteCharacters.slice(offset, offset + sliceSize);
+                if (angular.isArray(byteCharacters)) {
+                    for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+                        var slice = byteCharacters.slice(offset, offset + sliceSize);
 
-                    var byteNumbers = new Array(slice.length);
-                    for (var i = 0; i < slice.length; i++) {
-                        byteNumbers[i] = slice.charCodeAt(i);
+                        var byteNumbers = new Array(slice.length);
+                        for (var i = 0; i < slice.length; i++) {
+                            byteNumbers[i] = slice.charCodeAt(i);
+                        }
+
+                        var byteArray = new Uint8Array(byteNumbers);
+
+                        byteArrays.push(byteArray);
                     }
-
-                    var byteArray = new Uint8Array(byteNumbers);
-
-                    byteArrays.push(byteArray);
                 }
 
-                var blob = new Blob(byteArrays, {type: contentType});
+                var blob = new Blob(byteArrays, { type: contentType });
                 return blob;
             }
 
@@ -124,8 +126,10 @@ angular.module('common.fabric', [
             self.renderCount = 0;
             self.render = function() {
                 var objects = canvas.getObjects();
-                for (var i in objects) {
-                    objects[i].setCoords();
+                if (angular.isArray(objects)) {
+                    for (var i = 0; i < objects.length; i++) {
+                        objects[i].setCoords();
+                    }
                 }
 
                 canvas.calcOffset();
@@ -222,8 +226,10 @@ angular.module('common.fabric', [
                 FabricWindow.Image.fromURL(imageURL, function(object) {
                     object.id = self.createId();
 
-                    for (var p in self.imageOptions) {
-                        object[p] = self.imageOptions[p];
+                    if (angular.isArray(self.imageOptions)) {
+                        for (var p = 0; p < self.imageOptions.length; p++) {
+                            object[p] = self.imageOptions[p];
+                        }
                     }
 
                     // Add a filter that can be used to turn the image
@@ -278,13 +284,13 @@ angular.module('common.fabric', [
                 return object;
             };
 
-            self.addTextbox = function (str, isEditable) {
+            self.addTextbox = function(str, isEditable) {
                 str = str || 'New Text';
                 isEditable = isEditable || false;
                 var object = new FabricWindow.Textbox(str, self.textDefaults);
                 object.id = self.createId();
                 object.editable = isEditable;
-                
+
                 self.addObjectToCanvas(object);
 
                 return object;
@@ -538,7 +544,7 @@ angular.module('common.fabric', [
             };
 
             self.setTint = function(tint, object) {
-                if (! isHex(tint)) {
+                if (!isHex(tint)) {
                     return;
                 }
 
@@ -572,7 +578,7 @@ angular.module('common.fabric', [
             self.setFillPath = function(object, value) {
                 if (object.isSameColor && object.isSameColor() || !object.paths) {
                     object.setFill(value);
-                } else if (object.paths) {
+                } else if (object.paths && angular.isArray(object.paths)) {
                     for (var i = 0; i < object.paths.length; i++) {
                         object.paths[i].setFill(value);
                     }
@@ -589,20 +595,22 @@ angular.module('common.fabric', [
 
             self.setZoom = function() {
                 var objects = canvas.getObjects();
-                for (var i in objects) {
-                    objects[i].originalScaleX = objects[i].originalScaleX ?
-                        objects[i].originalScaleX :
-                        objects[i].scaleX;
-                    objects[i].originalScaleY = objects[i].originalScaleY ?
-                        objects[i].originalScaleY :
-                        objects[i].scaleY;
-                    objects[i].originalLeft = objects[i].originalLeft ?
-                        objects[i].originalLeft :
-                        objects[i].left;
-                    objects[i].originalTop = objects[i].originalTop ?
-                        objects[i].originalTop :
-                        objects[i].top;
-                    self.setObjectZoom(objects[i]);
+                if (angular.isArray(objects)) {
+                    for (var i = 0; i < objects.length; i++) {
+                        objects[i].originalScaleX = objects[i].originalScaleX ?
+                            objects[i].originalScaleX :
+                            objects[i].scaleX;
+                        objects[i].originalScaleY = objects[i].originalScaleY ?
+                            objects[i].originalScaleY :
+                            objects[i].scaleY;
+                        objects[i].originalLeft = objects[i].originalLeft ?
+                            objects[i].originalLeft :
+                            objects[i].left;
+                        objects[i].originalTop = objects[i].originalTop ?
+                            objects[i].originalTop :
+                            objects[i].top;
+                        self.setObjectZoom(objects[i]);
+                    }
                 }
 
                 self.setCanvasZoom();
@@ -639,7 +647,7 @@ angular.module('common.fabric', [
                 canvas.setHeight(tempHeight);
             };
 
-            self.updateObjectOriginals = function (object) {
+            self.updateObjectOriginals = function(object) {
                 if (object) {
                     object.originalScaleX = object.scaleX / self.canvasScale;
                     object.originalScaleY = object.scaleY / self.canvasScale;
@@ -656,7 +664,7 @@ angular.module('common.fabric', [
             //
             // Active Object Lock
             // ==============================================================
-            self.toggleLock = function (object) {
+            self.toggleLock = function(object) {
                 if (object) {
                     object.lockMovementX = !object.lockMovementX;
                     object.lockMovementY = !object.lockMovementY;
@@ -668,7 +676,7 @@ angular.module('common.fabric', [
                     self.render();
                 }
             };
-            
+
             self.toggleLockActiveObject = function() {
                 var activeObject = canvas.getActiveObject();
                 self.toggleLock(activeObject);
@@ -698,7 +706,7 @@ angular.module('common.fabric', [
                 self.selectedObject = false;
             };
 
-            self.deleteObject = function (object) {
+            self.deleteObject = function(object) {
                 canvas.remove(object);
                 self.render();
             };
@@ -972,4 +980,5 @@ angular.module('common.fabric', [
 
         };
 
-}]);
+    }
+]);

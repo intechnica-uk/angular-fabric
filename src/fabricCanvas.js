@@ -37,7 +37,7 @@ angular.module('common.fabric.canvas', [
         return self.canvasId;
     };
 
-    self.fixCanvasToBoundary = function (options) {
+    self.fixCanvasToBoundary = function(options) {
         if (!options.target) {
             return;
         }
@@ -52,14 +52,14 @@ angular.module('common.fabric.canvas', [
         var boundingObj = obj.getBoundingRect();
 
         // top-left  corner
-        if(boundingObj.top < 0 || boundingObj.left < 0) {
+        if (boundingObj.top < 0 || boundingObj.left < 0) {
             obj.top = Math.max(obj.top, obj.top - boundingObj.top);
             obj.left = Math.max(obj.left, obj.left - boundingObj.left);
         }
 
         // bot-right corner
         if (boundingObj.top + boundingObj.height > obj.canvas.height ||
-            boundingObj.left+boundingObj.width > obj.canvas.width) {
+            boundingObj.left + boundingObj.width > obj.canvas.width) {
             obj.top = Math.min(obj.top,
                 obj.canvas.height - boundingObj.height + obj.top - boundingObj.top);
             obj.left = Math.min(obj.left,
@@ -67,13 +67,13 @@ angular.module('common.fabric.canvas', [
         }
     };
 
-    self.focusCanvasWrapper = function (canvasRef) {
+    self.focusCanvasWrapper = function(canvasRef) {
         canvasRef = canvasRef.canvas || self.canvas;
 
         canvasRef.wrapperEl.focus();
     };
 
-    self.calculateTextWidth = function (txtObj) {
+    self.calculateTextWidth = function(txtObj) {
         var originalAlign = txtObj.textAlign;
         var ctx = txtObj.ctx;
         ctx.save();
@@ -94,26 +94,28 @@ angular.module('common.fabric.canvas', [
             lineJustStarted = true,
             additionalSpace = txtObj._getWidthOfCharSpacing();
 
-        for (var i = 0; i < words.length; i++) {
-            word = words[i];
-            wordWidth = txtObj._measureText(ctx, word, lineIndex, offset);
+        if (angular.isArray(words)) {
+            for (var i = 0; i < words.length; i++) {
+                word = words[i];
+                wordWidth = txtObj._measureText(ctx, word, lineIndex, offset);
 
-            offset += word.length;
+                offset += word.length;
 
-            lineWidth += infixWidth + wordWidth - additionalSpace;
-            lineWidth += additionalSpace;
+                lineWidth += infixWidth + wordWidth - additionalSpace;
+                lineWidth += additionalSpace;
 
-            if (!lineJustStarted) {
-                line += infix;
-            }
-            line += word;
+                if (!lineJustStarted) {
+                    line += infix;
+                }
+                line += word;
 
-            infixWidth = txtObj._measureText(ctx, infix, lineIndex, offset);
-            offset++;
-            lineJustStarted = false;
-            // keep track of largest word
-            if (wordWidth > largestWordWidth) {
-                largestWordWidth = wordWidth;
+                infixWidth = txtObj._measureText(ctx, infix, lineIndex, offset);
+                offset++;
+                lineJustStarted = false;
+                // keep track of largest word
+                if (wordWidth > largestWordWidth) {
+                    largestWordWidth = wordWidth;
+                }
             }
         }
 
@@ -122,7 +124,7 @@ angular.module('common.fabric.canvas', [
         return lineWidth;
     };
 
-    self.resizeTextBox = function (txtObj, maxSize) {
+    self.resizeTextBox = function(txtObj, maxSize) {
         var calculateWidth = self.calculateTextWidth(txtObj) + 5;
         if (maxSize && calculateWidth > maxSize) {
             calculateWidth = maxSize;

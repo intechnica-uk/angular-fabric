@@ -66,7 +66,7 @@ angular.module('common.fabric', [
                 object = object || canvas.getActiveObject();
 
                 if (object.setSelectionStyles && object.isEditing) {
-                    var style = { };
+                    var style = {};
                     style[styleName] = value;
                     object.setSelectionStyles(style);
                 } else {
@@ -97,20 +97,22 @@ angular.module('common.fabric', [
                 var byteCharacters = atob(b64Data);
                 var byteArrays = [];
 
-                for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
-                    var slice = byteCharacters.slice(offset, offset + sliceSize);
+                if (angular.isArray(byteCharacters)) {
+                    for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+                        var slice = byteCharacters.slice(offset, offset + sliceSize);
 
-                    var byteNumbers = new Array(slice.length);
-                    for (var i = 0; i < slice.length; i++) {
-                        byteNumbers[i] = slice.charCodeAt(i);
+                        var byteNumbers = new Array(slice.length);
+                        for (var i = 0; i < slice.length; i++) {
+                            byteNumbers[i] = slice.charCodeAt(i);
+                        }
+
+                        var byteArray = new Uint8Array(byteNumbers);
+
+                        byteArrays.push(byteArray);
                     }
-
-                    var byteArray = new Uint8Array(byteNumbers);
-
-                    byteArrays.push(byteArray);
                 }
 
-                var blob = new Blob(byteArrays, {type: contentType});
+                var blob = new Blob(byteArrays, { type: contentType });
                 return blob;
             }
 
@@ -124,8 +126,10 @@ angular.module('common.fabric', [
             self.renderCount = 0;
             self.render = function() {
                 var objects = canvas.getObjects();
-                for (var i in objects) {
-                    objects[i].setCoords();
+                if (angular.isArray(objects)) {
+                    for (var i = 0; i < objects.length; i++) {
+                        objects[i].setCoords();
+                    }
                 }
 
                 canvas.calcOffset();
@@ -222,8 +226,10 @@ angular.module('common.fabric', [
                 FabricWindow.Image.fromURL(imageURL, function(object) {
                     object.id = self.createId();
 
-                    for (var p in self.imageOptions) {
-                        object[p] = self.imageOptions[p];
+                    if (angular.isArray(self.imageOptions)) {
+                        for (var p = 0; p < self.imageOptions.length; p++) {
+                            object[p] = self.imageOptions[p];
+                        }
                     }
 
                     // Add a filter that can be used to turn the image
@@ -278,13 +284,13 @@ angular.module('common.fabric', [
                 return object;
             };
 
-            self.addTextbox = function (str, isEditable) {
+            self.addTextbox = function(str, isEditable) {
                 str = str || 'New Text';
                 isEditable = isEditable || false;
                 var object = new FabricWindow.Textbox(str, self.textDefaults);
                 object.id = self.createId();
                 object.editable = isEditable;
-                
+
                 self.addObjectToCanvas(object);
 
                 return object;
@@ -538,7 +544,7 @@ angular.module('common.fabric', [
             };
 
             self.setTint = function(tint, object) {
-                if (! isHex(tint)) {
+                if (!isHex(tint)) {
                     return;
                 }
 
@@ -572,7 +578,7 @@ angular.module('common.fabric', [
             self.setFillPath = function(object, value) {
                 if (object.isSameColor && object.isSameColor() || !object.paths) {
                     object.setFill(value);
-                } else if (object.paths) {
+                } else if (object.paths && angular.isArray(object.paths)) {
                     for (var i = 0; i < object.paths.length; i++) {
                         object.paths[i].setFill(value);
                     }
@@ -589,20 +595,22 @@ angular.module('common.fabric', [
 
             self.setZoom = function() {
                 var objects = canvas.getObjects();
-                for (var i in objects) {
-                    objects[i].originalScaleX = objects[i].originalScaleX ?
-                        objects[i].originalScaleX :
-                        objects[i].scaleX;
-                    objects[i].originalScaleY = objects[i].originalScaleY ?
-                        objects[i].originalScaleY :
-                        objects[i].scaleY;
-                    objects[i].originalLeft = objects[i].originalLeft ?
-                        objects[i].originalLeft :
-                        objects[i].left;
-                    objects[i].originalTop = objects[i].originalTop ?
-                        objects[i].originalTop :
-                        objects[i].top;
-                    self.setObjectZoom(objects[i]);
+                if (angular.isArray(objects)) {
+                    for (var i = 0; i < objects.length; i++) {
+                        objects[i].originalScaleX = objects[i].originalScaleX ?
+                            objects[i].originalScaleX :
+                            objects[i].scaleX;
+                        objects[i].originalScaleY = objects[i].originalScaleY ?
+                            objects[i].originalScaleY :
+                            objects[i].scaleY;
+                        objects[i].originalLeft = objects[i].originalLeft ?
+                            objects[i].originalLeft :
+                            objects[i].left;
+                        objects[i].originalTop = objects[i].originalTop ?
+                            objects[i].originalTop :
+                            objects[i].top;
+                        self.setObjectZoom(objects[i]);
+                    }
                 }
 
                 self.setCanvasZoom();
@@ -639,7 +647,7 @@ angular.module('common.fabric', [
                 canvas.setHeight(tempHeight);
             };
 
-            self.updateObjectOriginals = function (object) {
+            self.updateObjectOriginals = function(object) {
                 if (object) {
                     object.originalScaleX = object.scaleX / self.canvasScale;
                     object.originalScaleY = object.scaleY / self.canvasScale;
@@ -656,7 +664,7 @@ angular.module('common.fabric', [
             //
             // Active Object Lock
             // ==============================================================
-            self.toggleLock = function (object) {
+            self.toggleLock = function(object) {
                 if (object) {
                     object.lockMovementX = !object.lockMovementX;
                     object.lockMovementY = !object.lockMovementY;
@@ -668,7 +676,7 @@ angular.module('common.fabric', [
                     self.render();
                 }
             };
-            
+
             self.toggleLockActiveObject = function() {
                 var activeObject = canvas.getActiveObject();
                 self.toggleLock(activeObject);
@@ -698,7 +706,7 @@ angular.module('common.fabric', [
                 self.selectedObject = false;
             };
 
-            self.deleteObject = function (object) {
+            self.deleteObject = function(object) {
                 canvas.remove(object);
                 self.render();
             };
@@ -972,8 +980,8 @@ angular.module('common.fabric', [
 
         };
 
-}]);
-
+    }
+]);
 angular.module('common.fabric.canvas', [
     'common.fabric.window'
 ])
@@ -1013,7 +1021,7 @@ angular.module('common.fabric.canvas', [
         return self.canvasId;
     };
 
-    self.fixCanvasToBoundary = function (options) {
+    self.fixCanvasToBoundary = function(options) {
         if (!options.target) {
             return;
         }
@@ -1028,14 +1036,14 @@ angular.module('common.fabric.canvas', [
         var boundingObj = obj.getBoundingRect();
 
         // top-left  corner
-        if(boundingObj.top < 0 || boundingObj.left < 0) {
+        if (boundingObj.top < 0 || boundingObj.left < 0) {
             obj.top = Math.max(obj.top, obj.top - boundingObj.top);
             obj.left = Math.max(obj.left, obj.left - boundingObj.left);
         }
 
         // bot-right corner
         if (boundingObj.top + boundingObj.height > obj.canvas.height ||
-            boundingObj.left+boundingObj.width > obj.canvas.width) {
+            boundingObj.left + boundingObj.width > obj.canvas.width) {
             obj.top = Math.min(obj.top,
                 obj.canvas.height - boundingObj.height + obj.top - boundingObj.top);
             obj.left = Math.min(obj.left,
@@ -1043,13 +1051,13 @@ angular.module('common.fabric.canvas', [
         }
     };
 
-    self.focusCanvasWrapper = function (canvasRef) {
+    self.focusCanvasWrapper = function(canvasRef) {
         canvasRef = canvasRef.canvas || self.canvas;
 
         canvasRef.wrapperEl.focus();
     };
 
-    self.calculateTextWidth = function (txtObj) {
+    self.calculateTextWidth = function(txtObj) {
         var originalAlign = txtObj.textAlign;
         var ctx = txtObj.ctx;
         ctx.save();
@@ -1070,26 +1078,28 @@ angular.module('common.fabric.canvas', [
             lineJustStarted = true,
             additionalSpace = txtObj._getWidthOfCharSpacing();
 
-        for (var i = 0; i < words.length; i++) {
-            word = words[i];
-            wordWidth = txtObj._measureText(ctx, word, lineIndex, offset);
+        if (angular.isArray(words)) {
+            for (var i = 0; i < words.length; i++) {
+                word = words[i];
+                wordWidth = txtObj._measureText(ctx, word, lineIndex, offset);
 
-            offset += word.length;
+                offset += word.length;
 
-            lineWidth += infixWidth + wordWidth - additionalSpace;
-            lineWidth += additionalSpace;
+                lineWidth += infixWidth + wordWidth - additionalSpace;
+                lineWidth += additionalSpace;
 
-            if (!lineJustStarted) {
-                line += infix;
-            }
-            line += word;
+                if (!lineJustStarted) {
+                    line += infix;
+                }
+                line += word;
 
-            infixWidth = txtObj._measureText(ctx, infix, lineIndex, offset);
-            offset++;
-            lineJustStarted = false;
-            // keep track of largest word
-            if (wordWidth > largestWordWidth) {
-                largestWordWidth = wordWidth;
+                infixWidth = txtObj._measureText(ctx, infix, lineIndex, offset);
+                offset++;
+                lineJustStarted = false;
+                // keep track of largest word
+                if (wordWidth > largestWordWidth) {
+                    largestWordWidth = wordWidth;
+                }
             }
         }
 
@@ -1098,7 +1108,7 @@ angular.module('common.fabric.canvas', [
         return lineWidth;
     };
 
-    self.resizeTextBox = function (txtObj, maxSize) {
+    self.resizeTextBox = function(txtObj, maxSize) {
         var calculateWidth = self.calculateTextWidth(txtObj) + 5;
         if (maxSize && calculateWidth > maxSize) {
             calculateWidth = maxSize;
@@ -1110,330 +1120,325 @@ angular.module('common.fabric.canvas', [
     return self;
 
 }]);
-
 angular.module('common.fabric.constants', [])
 
 .service('FabricConstants', [function() {
-	'use strict';
+    'use strict';
 
-	var objectDefaults = {
-		rotatingPointOffset: 20,
-		padding: 0,
-		borderColor: 'EEF6FC',
-		cornerColor: 'rgba(64, 159, 221, 1)',
-		cornerSize: 10,
-		transparentCorners: false,
-		hasRotatingPoint: true,
-		centerTransform: true
-	};
+    var objectDefaults = {
+        rotatingPointOffset: 20,
+        padding: 0,
+        borderColor: 'EEF6FC',
+        cornerColor: 'rgba(64, 159, 221, 1)',
+        cornerSize: 10,
+        transparentCorners: false,
+        hasRotatingPoint: true,
+        centerTransform: true
+    };
 
-	return {
+    return {
 
-		presetSizes: [
-			{
-				name: 'Portrait (8.5 x 11)',
-				height: 1947,
-				width: 1510
-			},
-			{
-				name: 'Landscape (11 x 8.5)',
-				width: 1947,
-				height: 1510
-			},
-			{
-				name: 'Business Card (3.5 x 2)',
-				height: 368,
-				width: 630
-			},
-			{
-				name: 'Postcard (6 x 4)',
-				height: 718,
-				width: 1068
-			},
-			{
-				name: 'Content/Builder Product Thumbnail',
-				height: 400,
-				width: 760
-			},
-			{
-				name: 'Badge',
-				height: 400,
-				width: 400
-			},
-			{
-				name: 'Facebook Profile Picture',
-				height: 300,
-				width: 300
-			},
-			{
-				name: 'Facebook Cover Picture',
-				height: 315,
-				width: 851
-			},
-			{
-				name: 'Facebook Photo Post (Landscape)',
-				height: 504,
-				width: 403
-			},
-			{
-				name: 'Facebook Photo Post (Horizontal)',
-				height: 1008,
-				width: 806
-			},
-			{
-				name: 'Facebook Full-Width Photo Post',
-				height: 504,
-				width: 843
-			}
-		],
+        presetSizes: [{
+                name: 'Portrait (8.5 x 11)',
+                height: 1947,
+                width: 1510
+            },
+            {
+                name: 'Landscape (11 x 8.5)',
+                width: 1947,
+                height: 1510
+            },
+            {
+                name: 'Business Card (3.5 x 2)',
+                height: 368,
+                width: 630
+            },
+            {
+                name: 'Postcard (6 x 4)',
+                height: 718,
+                width: 1068
+            },
+            {
+                name: 'Content/Builder Product Thumbnail',
+                height: 400,
+                width: 760
+            },
+            {
+                name: 'Badge',
+                height: 400,
+                width: 400
+            },
+            {
+                name: 'Facebook Profile Picture',
+                height: 300,
+                width: 300
+            },
+            {
+                name: 'Facebook Cover Picture',
+                height: 315,
+                width: 851
+            },
+            {
+                name: 'Facebook Photo Post (Landscape)',
+                height: 504,
+                width: 403
+            },
+            {
+                name: 'Facebook Photo Post (Horizontal)',
+                height: 1008,
+                width: 806
+            },
+            {
+                name: 'Facebook Full-Width Photo Post',
+                height: 504,
+                width: 843
+            }
+        ],
 
-		fonts: [
-			{ name: 'Arial' },
-			{ name: 'Impact' },
-			{ name: 'Tahoma' }
-		],
+        fonts: [
+            { name: 'Arial' },
+            { name: 'Impact' },
+            { name: 'Tahoma' }
+        ],
 
-		shapeCategories: [
-			{
-				name: 'Popular Shapes',
-				shapes: [
-					'arrow6',
-					'bubble4',
-					'circle1',
-					'rectangle1',
-					'star1',
-					'triangle1'
-				]
-			},
-			{
-				name: 'Simple Shapes',
-				shapes: [
-					'circle1',
-					'heart1',
-					'rectangle1',
-					'triangle1',
-					'star1',
-					'star2',
-					'star3',
-					'square1'
-				]
-			},
-			{
-				name: 'Arrows & Pointers',
-				shapes: [
-					'arrow1',
-					'arrow9',
-					'arrow3',
-					'arrow6',
-				]
-			},
-			{
-				name: 'Bubbles & Balloons',
-				shapes: [
-					'bubble5',
-					'bubble4'
-				]
-			},
-			{
-				name: 'Check Marks',
-				shapes: [
+        shapeCategories: [{
+                name: 'Popular Shapes',
+                shapes: [
+                    'arrow6',
+                    'bubble4',
+                    'circle1',
+                    'rectangle1',
+                    'star1',
+                    'triangle1'
+                ]
+            },
+            {
+                name: 'Simple Shapes',
+                shapes: [
+                    'circle1',
+                    'heart1',
+                    'rectangle1',
+                    'triangle1',
+                    'star1',
+                    'star2',
+                    'star3',
+                    'square1'
+                ]
+            },
+            {
+                name: 'Arrows & Pointers',
+                shapes: [
+                    'arrow1',
+                    'arrow9',
+                    'arrow3',
+                    'arrow6',
+                ]
+            },
+            {
+                name: 'Bubbles & Balloons',
+                shapes: [
+                    'bubble5',
+                    'bubble4'
+                ]
+            },
+            {
+                name: 'Check Marks',
+                shapes: [
 
-				]
-			},
-			{
-				name: 'Badges',
-				shapes: [
-					'badge1',
-					'badge2',
-					'badge4',
-					'badge5',
-					'badge6'
-				]
-			}
-		],
+                ]
+            },
+            {
+                name: 'Badges',
+                shapes: [
+                    'badge1',
+                    'badge2',
+                    'badge4',
+                    'badge5',
+                    'badge6'
+                ]
+            }
+        ],
 
-		JSONExportProperties: [
-			'height',
-			'width',
-			'background',
-			'objects',
+        JSONExportProperties: [
+            'height',
+            'width',
+            'background',
+            'objects',
 
-			'originalHeight',
-			'originalWidth',
-			'originalScaleX',
-			'originalScaleY',
-			'originalLeft',
-			'originalTop',
+            'originalHeight',
+            'originalWidth',
+            'originalScaleX',
+            'originalScaleY',
+            'originalLeft',
+            'originalTop',
 
-			'lineHeight',
-			'lockMovementX',
-			'lockMovementY',
-			'lockScalingX',
-			'lockScalingY',
-			'lockUniScaling',
-			'lockRotation',
-			'lockObject',
-			'id',
-			'isTinted',
-			'filters'
-		],
+            'lineHeight',
+            'lockMovementX',
+            'lockMovementY',
+            'lockScalingX',
+            'lockScalingY',
+            'lockUniScaling',
+            'lockRotation',
+            'lockObject',
+            'id',
+            'isTinted',
+            'filters'
+        ],
 
-		shapeDefaults: angular.extend({
-			fill: '#0088cc'
-		}, objectDefaults),
+        shapeDefaults: angular.extend({
+            fill: '#0088cc'
+        }, objectDefaults),
 
-		textDefaults: angular.extend({
-			originX: 'left',
-			scaleX: 1,
-			scaleY: 1,
-			fontFamily: 'Arial',
-			fontSize: 40,
-			fill: '#454545',
-			textAlign: 'left'
-		}, objectDefaults)
+        textDefaults: angular.extend({
+            originX: 'left',
+            scaleX: 1,
+            scaleY: 1,
+            fontFamily: 'Arial',
+            fontSize: 40,
+            fill: '#454545',
+            textAlign: 'left'
+        }, objectDefaults)
 
-	};
+    };
 
 }]);
-
 angular.module('common.fabric.directive', [
-	'common.fabric.canvas'
+    'common.fabric.canvas'
 ])
 
 .directive('fabric', [function() {
-	'use strict';
+    'use strict';
 
-	return {
-		scope: {
-			fabric: '@'
-		},
-		controller: DirectiveController
-	};
+    return {
+        scope: {
+            fabric: '@'
+        },
+        controller: DirectiveController
+    };
 }]);
 
 DirectiveController.$inject = ['$scope', '$timeout', '$element', 'FabricCanvas'];
 
 function DirectiveController($scope, $timeout, $element, FabricCanvas) {
-	'use strict';
+    'use strict';
 
-	var controller = function () {
-		FabricCanvas.setElement($element);
-		FabricCanvas.createCanvas();
+    var controller = function() {
+        FabricCanvas.setElement($element);
+        FabricCanvas.createCanvas();
 
-		// Continue rendering the canvas until the user clicks
-		// to avoid the "calcOffset" bug upon load.
-		$('body').on('click', 'canvas', function() {
-			if ($scope.fabric.setUserHasClickedCanvas) {
-				$scope.fabric.setUserHasClickedCanvas(true);
-			}
-		});
+        // Continue rendering the canvas until the user clicks
+        // to avoid the "calcOffset" bug upon load.
+        $('body').on('click', 'canvas', function() {
+            if ($scope.fabric.setUserHasClickedCanvas) {
+                $scope.fabric.setUserHasClickedCanvas(true);
+            }
+        });
 
-		//
-		// Watching Controller Variables
-		// ============================================================
-		$scope.$watch('fabric.canvasBackgroundColor', function(newVal) {
-			if ($scope.fabric.setCanvasBackgroundColor) {
-				$scope.fabric.setCanvasBackgroundColor(newVal);
-			}
-		});
+        //
+        // Watching Controller Variables
+        // ============================================================
+        $scope.$watch('fabric.canvasBackgroundColor', function(newVal) {
+            if ($scope.fabric.setCanvasBackgroundColor) {
+                $scope.fabric.setCanvasBackgroundColor(newVal);
+            }
+        });
 
-		$scope.$watch('fabric.selectedObject.text', function(newVal) {
-			if (typeof newVal === 'string') {
-				$scope.fabric.setText(newVal);
-				$scope.fabric.render();
-			}
-		});
+        $scope.$watch('fabric.selectedObject.text', function(newVal) {
+            if (typeof newVal === 'string') {
+                $scope.fabric.setText(newVal);
+                $scope.fabric.render();
+            }
+        });
 
-		$scope.$watch('fabric.selectedObject.fontSize', function(newVal) {
-			if (typeof newVal === 'string' || typeof newVal === 'number') {
-				$scope.fabric.setFontSize(newVal);
-				$scope.fabric.render();
-			}
-		});
+        $scope.$watch('fabric.selectedObject.fontSize', function(newVal) {
+            if (typeof newVal === 'string' || typeof newVal === 'number') {
+                $scope.fabric.setFontSize(newVal);
+                $scope.fabric.render();
+            }
+        });
 
-		$scope.$watch('fabric.selectedObject.lineHeight', function(newVal) {
-			if (typeof newVal === 'string' || typeof newVal === 'number') {
-				$scope.fabric.setLineHeight(newVal);
-				$scope.fabric.render();
-			}
-		});
+        $scope.$watch('fabric.selectedObject.lineHeight', function(newVal) {
+            if (typeof newVal === 'string' || typeof newVal === 'number') {
+                $scope.fabric.setLineHeight(newVal);
+                $scope.fabric.render();
+            }
+        });
 
-		$scope.$watch('fabric.selectedObject.textAlign', function(newVal) {
-			if (typeof newVal === 'string') {
-				$scope.fabric.setTextAlign(newVal);
-				$scope.fabric.render();
-			}
-		});
+        $scope.$watch('fabric.selectedObject.textAlign', function(newVal) {
+            if (typeof newVal === 'string') {
+                $scope.fabric.setTextAlign(newVal);
+                $scope.fabric.render();
+            }
+        });
 
-		$scope.$watch('fabric.selectedObject.fontFamily', function(newVal) {
-			if (typeof newVal === 'string' && newVal) {
-				$scope.fabric.setFontFamily(newVal);
-				$scope.fabric.render();
-			}
-		});
+        $scope.$watch('fabric.selectedObject.fontFamily', function(newVal) {
+            if (typeof newVal === 'string' && newVal) {
+                $scope.fabric.setFontFamily(newVal);
+                $scope.fabric.render();
+            }
+        });
 
-		$scope.$watch('fabric.selectedObject.opacity', function(newVal) {
-			if (typeof newVal === 'string' || typeof newVal === 'number') {
-				$scope.fabric.setOpacity(newVal);
-				$scope.fabric.render();
-			}
-		});
+        $scope.$watch('fabric.selectedObject.opacity', function(newVal) {
+            if (typeof newVal === 'string' || typeof newVal === 'number') {
+                $scope.fabric.setOpacity(newVal);
+                $scope.fabric.render();
+            }
+        });
 
-		$scope.$watch('fabric.selectedObject.fill', function(newVal) {
-			if (typeof newVal === 'string') {
-				$scope.fabric.setFill(newVal);
-				$scope.fabric.render();
-			}
-		});
+        $scope.$watch('fabric.selectedObject.fill', function(newVal) {
+            if (typeof newVal === 'string') {
+                $scope.fabric.setFill(newVal);
+                $scope.fabric.render();
+            }
+        });
 
-		$scope.$watch('fabric.selectedObject.tint', function(newVal) {
-			if (typeof newVal === 'string') {
-				$scope.fabric.setTint(newVal);
-				$scope.fabric.render();
-			}
-		});
-	};
+        $scope.$watch('fabric.selectedObject.tint', function(newVal) {
+            if (typeof newVal === 'string') {
+                $scope.fabric.setTint(newVal);
+                $scope.fabric.render();
+            }
+        });
+    };
 
-	$timeout(controller, 0);
+    $timeout(controller, 0);
 }
 angular.module('common.fabric.dirtyStatus', [])
 
 .service('FabricDirtyStatus', ['$window', function($window) {
-	'use strict';
+    'use strict';
 
-	var self = {
-		dirty: false
-	};
+    var self = {
+        dirty: false
+    };
 
-	function checkSaveStatus() {
-		if (self.isDirty()) {
-			return 'Oops! You have unsaved changes.\n\n' +
-				'Please save before leaving so you don\'t lose any work.';
-		}
-	}
+    function checkSaveStatus() {
+        if (self.isDirty()) {
+            return 'Oops! You have unsaved changes.\n\n' +
+                'Please save before leaving so you don\'t lose any work.';
+        }
+    }
 
-	self.endListening = function() {
-		$window.onbeforeunload = null;
-		$window.onhashchange = null;
-	};
+    self.endListening = function() {
+        $window.onbeforeunload = null;
+        $window.onhashchange = null;
+    };
 
-	self.startListening = function() {
-		$window.onbeforeunload = checkSaveStatus;
-		$window.onhashchange = checkSaveStatus;
-	};
+    self.startListening = function() {
+        $window.onbeforeunload = checkSaveStatus;
+        $window.onhashchange = checkSaveStatus;
+    };
 
-	self.isDirty = function() {
-		return self.dirty;
-	};
+    self.isDirty = function() {
+        return self.dirty;
+    };
 
-	self.setDirty = function(value) {
-		self.dirty = value;
-	};
+    self.setDirty = function(value) {
+        self.dirty = value;
+    };
 
-	return self;
+    return self;
 
 }]);
-
 angular
     .module('common.fabric.utilities', [])
     .directive('parentClick', ['$timeout', function($timeout) {
@@ -1445,14 +1450,14 @@ angular
             },
             link: function(scope, element) {
                 element.mousedown(function() {
-                    $timeout(function() {
-                        scope.parentClick();
+                        $timeout(function() {
+                            scope.parentClick();
+                        });
+                    })
+                    .children()
+                    .mousedown(function(e) {
+                        e.stopPropagation();
                     });
-                })
-                .children()
-                .mousedown(function(e) {
-                    e.stopPropagation();
-                });
             }
         };
     }])
@@ -1461,14 +1466,14 @@ angular
 
         var self = {};
 
-        self.onKeyDown = function (listenerArea, callback) {
-            listenerArea.addEventListener('keydown', function (event) {
+        self.onKeyDown = function(listenerArea, callback) {
+            listenerArea.addEventListener('keydown', function(event) {
                 callback(event);
             }, false);
         };
 
-        self.onKeyCode = function (listenerArea, keyCode, callback) {
-            self.onKeyDown(listenerArea, function (event) {
+        self.onKeyCode = function(listenerArea, keyCode, callback) {
+            self.onKeyDown(listenerArea, function(event) {
                 if (event.which === keyCode) {
                     event.preventDefault();
                     callback(event);
@@ -1477,8 +1482,8 @@ angular
         };
 
         self.onCtrlAndS = function(callback) {
-            self.onKeyDown(document, function (event) {
-                if((event.ctrlKey || event.metaKey) && event.which === 83) {
+            self.onKeyDown(document, function(event) {
+                if ((event.ctrlKey || event.metaKey) && event.which === 83) {
                     event.preventDefault();
                     callback(event);
                 }
@@ -1487,20 +1492,20 @@ angular
 
         return self;
     }])
-    .filter('Reverse', [function () {
+    .filter('Reverse', [function() {
         'use strict';
-        
+
         return function(items) {
             if (items) {
                 return items.slice().reverse();
             }
         };
     }])
-    .filter('ArrayContainsProperty', [function () {
+    .filter('ArrayContainsProperty', [function() {
         'use strict';
 
-        return function (objectArray, targetValue, property) {
-            return objectArray.some(function (object) {
+        return function(objectArray, targetValue, property) {
+            return objectArray.some(function(object) {
                 if (!!object && !!object[property]) {
                     return object[property] === targetValue;
                 }
@@ -1508,12 +1513,11 @@ angular
             });
         };
     }]);
-
 angular.module('common.fabric.window', [])
 
 .factory('FabricWindow', ['$window', function($window) {
-	'use strict';
+    'use strict';
 
-	return $window.fabric;
+    return $window.fabric;
 
 }]);

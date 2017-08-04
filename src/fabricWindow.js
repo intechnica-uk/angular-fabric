@@ -1,8 +1,8 @@
 angular.module('common.fabric.window', [])
 
 .factory('FabricWindow', ['$window', function($window) {
-	'use strict';
+    'use strict';
 
-	return $window.fabric;
+    return $window.fabric;
 
 }]);
