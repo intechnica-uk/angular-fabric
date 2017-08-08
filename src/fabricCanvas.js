@@ -126,11 +126,13 @@ angular.module('common.fabric.canvas', [
 
     self.resizeTextBox = function(txtObj, maxSize) {
         var calculateWidth = self.calculateTextWidth(txtObj) + 5;
-        if (maxSize && calculateWidth > maxSize) {
-            calculateWidth = maxSize;
+
+        if (maxSize && calculateWidth + txtObj.left > maxSize) {
+            calculateWidth = maxSize - txtObj.left;
         }
 
         txtObj.width = calculateWidth;
+        txtObj._splitTextIntoLines();
     };
 
     return self;
