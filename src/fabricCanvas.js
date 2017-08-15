@@ -124,11 +124,19 @@ angular.module('common.fabric.canvas', [
         return lineWidth;
     };
 
-    self.resizeTextBox = function(txtObj, maxSize) {
-        var calculateWidth = self.calculateTextWidth(txtObj) + 5;
+    self.resizeTextBox = function(txtObj, canvasSize, requestedWidth) {
+        var calculateWidth;
 
-        if (maxSize && calculateWidth + txtObj.left > maxSize) {
-            calculateWidth = maxSize - txtObj.left;
+        // either use requested width or calculate it
+        if (requestedWidth) {
+            calculateWidth = requestedWidth;
+        } else {
+            calculateWidth = self.calculateTextWidth(txtObj) + 5;
+        }
+
+        // if width takes us over edge of canvas, just use remaining width on canvas
+        if (canvasSize && calculateWidth + txtObj.left > canvasSize) {
+            calculateWidth = canvasSize - txtObj.left - 5;
         }
 
         txtObj.width = calculateWidth;
